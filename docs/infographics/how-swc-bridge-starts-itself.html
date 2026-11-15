@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How SWC Bridge starts itself</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#1D5FBF}a:hover{color:#123F80}
+</style>
+</head>
+<body>
+<div style="width: 1200px; height: 2960px; box-sizing: border-box; background: #EEF1F4; color: #141A22; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 17px; line-height: 1.45; display: flex; flex-direction: column">
+
+<!-- HEADER -->
+<div style="background: #141A22; color: #F4F6F8; padding: 56px 64px 52px; display: flex; flex-direction: column; gap: 18px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; letter-spacing: 0.08em; color: #9FB3C8">LEXUS IS HEAD UNIT · SWC BRIDGE v0.9.2 · SOLVED OCT 2026</div>
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 68px; line-height: 1.02; letter-spacing: -0.02em">How SWC Bridge starts itself</h1>
+<p style="margin: 0; font-size: 22px; line-height: 1.4; color: #D5DDE5; max-width: 900px">The fix wasn't making the app start better. It was making the app <strong style="color: #FFFFFF">not be running</strong> when you switch the car off.</p>
+</div>
+
+<div style="padding: 48px 64px 40px; display: flex; flex-direction: column; gap: 40px; flex-grow: 1">
+
+<!-- 1. THE RULE -->
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: #C2410C">01</div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px">The rule we discovered</h2>
+</div>
+<div style="background: #FFFFFF; border-radius: 16px; padding: 32px; display: flex; gap: 36px; align-items: center">
+<div style="flex: 0 0 380px; display: flex; flex-direction: column; gap: 14px">
+<p style="margin: 0; font-size: 22px; line-height: 1.35; font-weight: 600">When the car switches off, the head unit <span style="color: #C2410C">force-stops every running app</span>, except the one playing music.</p>
+<p style="margin: 0; color: #4A5563">A force-stopped app is <strong style="color: #141A22">frozen</strong>. Android won't deliver it the boot signal or a single wheel press until someone opens it by hand.</p>
+</div>
+<div style="flex: 1 1 auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<div style="background: #E1ECFA; border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1D5FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+<div style="display: flex; flex-direction: column"><strong>Playing music</strong><span style="color: #1D5FBF; font-weight: 600">Spared ✓</span></div>
+</div>
+<div style="background: #E1ECFA; border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1D5FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8"></path></svg>
+<div style="display: flex; flex-direction: column"><strong>Not running</strong><span style="color: #1D5FBF; font-weight: 600">Nothing to stop ✓</span></div>
+</div>
+<div style="background: #FBE7DC; border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M4.9 7l14.2 10M19.1 7L4.9 17"></path><path d="M9 4l3 2 3-2M9 20l3-2 3 2"></path></svg>
+<div style="display: flex; flex-direction: column"><strong>Running in background</strong><span style="color: #C2410C; font-weight: 600">Frozen ✗</span></div>
+</div>
+<div style="background: #FBE7DC; border-radius: 12px; padding: 18px; display: flex; gap: 14px; align-items: center">
+<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#C2410C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path></svg>
+<div style="display: flex; flex-direction: column"><strong>Swiped from recents</strong><span style="color: #C2410C; font-weight: 600">Frozen ✗ (any time)</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 2. BEFORE / AFTER -->
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: #C2410C">02</div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px">Before vs. after</h2>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+
+<div style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 16px; border-top: 6px solid #C2410C">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #C2410C; letter-spacing: 0.06em">BEFORE · v0.7 – v0.8</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.15">Always running, so always frozen</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #FBE7DC; color: #C2410C; font-weight: 600; display: flex; align-items: center; justify-content: center">1</div><div>A service kept SWC Bridge running all the time.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #FBE7DC; color: #C2410C; font-weight: 600; display: flex; align-items: center; justify-content: center">2</div><div>Car off: it was running, so the head unit force-stopped it.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #FBE7DC; color: #C2410C; font-weight: 600; display: flex; align-items: center; justify-content: center">3</div><div>Car on: frozen. No boot signal, wheel dead.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #FBE7DC; color: #C2410C; font-weight: 600; display: flex; align-items: center; justify-content: center">4</div><div>You opened it by hand, so it was running again… and the loop repeated.</div></div>
+</div>
+<div style="margin-top: auto; background: #F6F7F9; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #4A5563">v0.8 also hid it from recent apps. It didn't help: the cleanup goes by <em>running</em>, not by the recents list.</div>
+</div>
+
+<div style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 16px; border-top: 6px solid #1D5FBF">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #1D5FBF; letter-spacing: 0.06em">AFTER · v0.9.1 “LEAN MODE”</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.15">Runs only for a moment, so it survives</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #E1ECFA; color: #1D5FBF; font-weight: 600; display: flex; align-items: center; justify-content: center">1</div><div>The app does its job, then <strong>shuts itself down</strong> a few seconds later.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #E1ECFA; color: #1D5FBF; font-weight: 600; display: flex; align-items: center; justify-content: center">2</div><div>Car off: it isn't running, so the cleanup skips it.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #E1ECFA; color: #1D5FBF; font-weight: 600; display: flex; align-items: center; justify-content: center">3</div><div>Car on: not frozen. Android is still allowed to start it.</div></div>
+<div style="display: flex; gap: 12px; align-items: flex-start"><div style="flex: 0 0 30px; height: 30px; border-radius: 15px; background: #E1ECFA; color: #1D5FBF; font-weight: 600; display: flex; align-items: center; justify-content: center">4</div><div>Each wheel press wakes it on demand. You never open it.</div></div>
+</div>
+<div style="margin-top: auto; background: #E1ECFA; border-radius: 10px; padding: 14px 16px; font-size: 15px; color: #123F80">The key insight: SWC Bridge doesn't need to be running to catch the wheel. Android starts it the instant a press is announced.</div>
+</div>
+
+</div>
+</div>
+
+<!-- 3. ONE WHEEL PRESS -->
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: #C2410C">03</div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px">One wheel press, start to finish</h2>
+</div>
+<div style="background: #FFFFFF; border-radius: 16px; padding: 30px 28px; display: flex; align-items: stretch; gap: 10px">
+<div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#141A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="2.5"></circle><path d="M3.5 10h6M14.5 10h6M12 14.5V21"></path></svg>
+<strong style="font-size: 18px">You press NEXT</strong>
+<span style="font-size: 15px; color: #4A5563">on the steering wheel</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA6B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="align-self: center; flex: 0 0 28px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#141A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"></path><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"></path></svg>
+<strong style="font-size: 18px">Head unit announces it</strong>
+<span style="font-size: 15px; color: #4A5563">“a media button was pressed”</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA6B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="align-self: center; flex: 0 0 28px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1D5FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>
+<strong style="font-size: 18px">Android starts SWC Bridge</strong>
+<span style="font-size: 15px; color: #4A5563">in 30–50 thousandths of a second</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA6B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="align-self: center; flex: 0 0 28px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#141A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l10 8-10 8z"></path><path d="M19 5v14"></path></svg>
+<strong style="font-size: 18px">Track skips in Poweramp</strong>
+<span style="font-size: 15px; color: #4A5563">plus volume topped up to 100%</span>
+</div>
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA6B2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="align-self: center; flex: 0 0 28px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 1 1 0; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1D5FBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+<strong style="font-size: 18px">App exits ~5 s later</strong>
+<span style="font-size: 15px; color: #4A5563">long enough for a double-press</span>
+</div>
+</div>
+</div>
+
+<!-- 4. TIMELINE -->
+<div style="display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; align-items: baseline; gap: 14px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; color: #C2410C">04</div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 34px">A drive, from key-on to key-off</h2>
+</div>
+<div style="background: #FFFFFF; border-radius: 16px; padding: 32px 32px 28px; display: flex; flex-direction: column; gap: 22px">
+<div style="display: flex; align-items: center; gap: 0">
+<div style="width: 18px; height: 18px; border-radius: 9px; background: #141A22; flex: 0 0 18px"></div>
+<div style="height: 6px; background: #C9D1D9; flex: 1 1 0"></div>
+<div style="width: 18px; height: 18px; border-radius: 9px; background: #1D5FBF; flex: 0 0 18px"></div>
+<div style="height: 6px; background: #C9D1D9; flex: 1 1 0"></div>
+<div style="width: 18px; height: 18px; border-radius: 9px; background: #1D5FBF; flex: 0 0 18px"></div>
+<div style="height: 6px; background: #1D5FBF; flex: 1.4 1 0"></div>
+<div style="width: 18px; height: 18px; border-radius: 9px; background: #141A22; flex: 0 0 18px"></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #4A5563">0 s · CAR ON</div>
+<strong style="font-size: 18px">Full Android boot</strong>
+<span style="font-size: 15px; color: #4A5563">Switching off is a real shutdown, so every start is a fresh boot. The clock even resets to 1969.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #1D5FBF">~35 s</div>
+<strong style="font-size: 18px">SWC Bridge runs, then exits</strong>
+<span style="font-size: 15px; color: #4A5563">The earliest Android lets any app run. It does its startup jobs and shuts down.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #1D5FBF">~55 s</div>
+<strong style="font-size: 18px">Wheel presses arrive</strong>
+<span style="font-size: 15px; color: #4A5563">Earlier presses are held in a queue while Android finishes starting, then delivered at once.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #4A5563">CAR OFF</div>
+<strong style="font-size: 18px">App isn't running</strong>
+<span style="font-size: 15px; color: #4A5563">The cleanup has nothing to freeze. Next start works on its own.</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 5. TRAP + VOLUME -->
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+<div style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #C2410C; letter-spacing: 0.06em">05 · THE TRAP ALONG THE WAY</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.15">Closing the screen the “clean” way froze it</div>
+<p style="margin: 0; color: #4A5563">v0.9 closed its settings screen by removing its own task. On this head unit, that counts as being swiped away: instant force-stop.</p>
+<p style="margin: 0"><strong>v0.9.1</strong> just closes the screen and leaves the task alone. That's the version that passed every test.</p>
+</div>
+<div style="background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #1D5FBF; letter-spacing: 0.06em">06 · BONUS: VOLUME AT 100%</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 26px; line-height: 1.15">Top it up on every NEXT</div>
+<p style="margin: 0; color: #4A5563">Android ignored volume changes at startup because no music was playing yet. Your car amp sets the real loudness.</p>
+<p style="margin: 0"><strong>v0.9.2</strong> checks the volume on each NEXT and raises it to 100% once music is playing. No pop-up, no adb.</p>
+</div>
+</div>
+
+<!-- 6. EDGE CASES + RESULTS -->
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px">
+<div style="grid-column: span 3; background: #FFFFFF; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #C2410C; letter-spacing: 0.06em">07 · WHEN IT CAN STILL FREEZE</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; line-height: 1.2">Anything that leaves it running at switch-off</div>
+<div style="display: flex; flex-direction: column; gap: 9px">
+<div style="display: flex; gap: 10px"><span style="color: #C2410C; font-weight: 600">✗</span><span>Poweramp <strong>paused</strong> when you switch off</span></div>
+<div style="display: flex; gap: 10px"><span style="color: #C2410C; font-weight: 600">✗</span><span>A wheel press in the <strong>last ~5 seconds</strong> before switch-off</span></div>
+<div style="display: flex; gap: 10px"><span style="color: #C2410C; font-weight: 600">✗</span><span>The SWC Bridge <strong>screen open</strong> at switch-off</span></div>
+<div style="display: flex; gap: 10px"><span style="color: #C2410C; font-weight: 600">✗</span><span>Switching off <strong>within ~1 minute</strong> of starting</span></div>
+</div>
+<div style="background: #E1ECFA; border-radius: 10px; padding: 14px 16px; color: #123F80"><strong>Fix:</strong> open SWC Bridge once and it's back to normal. <strong>Habit:</strong> switch off with music playing.</div>
+</div>
+<div style="grid-column: span 2; background: #141A22; color: #F4F6F8; border-radius: 16px; padding: 30px; display: flex; flex-direction: column; gap: 14px">
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #9FB3C8; letter-spacing: 0.06em">CAR-OFF TESTS</div>
+<div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2E3946; padding-bottom: 10px"><span>10 minutes off</span><strong style="color: #8EC1FF">✓ worked</strong></div>
+<div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2E3946; padding-bottom: 10px"><span>~3 hours off</span><strong style="color: #8EC1FF">✓ worked</strong></div>
+<div style="display: flex; justify-content: space-between; border-bottom: 1px solid #2E3946; padding-bottom: 10px"><span>Overnight</span><strong style="color: #8EC1FF">✓ worked</strong></div>
+<div style="display: flex; justify-content: space-between"><span>Poweramp paused</span><strong style="color: #FFB28A">✗ frozen</strong></div>
+<div style="margin-top: auto; font-size: 15px; color: #B8C4D0">The paused case confirms the rule: with nothing playing, nothing is spared.</div>
+</div>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<div style="padding: 22px 64px 30px; display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #4A5563">
+<span>SWC Bridge · com.mattc.swcbridge · Android 7.0 aftermarket head unit</span>
+<span>Not rooted · no adb · still powers down fully</span>
+</div>
+
+</div>
+</body>
+</html>

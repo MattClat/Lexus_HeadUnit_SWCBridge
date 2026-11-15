@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Normal protection level, granted at install. Not strictly required for
+         setStreamVolume on STREAM_MUSIC, but some OEM audio stacks check for it. -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Development-protection: cannot be held by a normal install, but declaring it
+         lets it be granted once over adb, which is what permanently disables Android's
+         safe-media-volume limiter. Everything else works without it. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Only needed on API 30+; harmless on the head unit (API 24) where
+         package visibility filtering does not exist. -->
+    <queries>
+        <intent>
+            <action android:name="com.maxmpz.audioplayer.API_COMMAND" />
+        </intent>
+    </queries>
+
+    <application
+        android:name=".SwcApp"
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_media_play"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+
+        <!-- excludeFromRecents (v0.8) is THE cold-start fix.
+             Proven on the car, 26 Sep 2026: this head unit FORCE-STOPS any app that is
+             cleared from the recent-apps list (stock Android only closes its window),
+             and it appears to clear that list when the car is switched off. A
+             force-stopped app receives no broadcasts at all - not BOOT_COMPLETED, not
+             the steering wheel's MEDIA_BUTTON - until someone opens it by hand, and
+             opening it put it straight back into recents for the next shutdown.
+             Kept out of recents, the app should survive the cleanup and start itself
+             from the boot receivers below, which do work on this ROM.
+             v0.9 update: hiding from recents was NOT enough. The unit force-stops the
+             apps that are RUNNING at switch-off (except the one playing audio), so v0.9
+             "lean mode" ends the process whenever it is idle. See Lean.java. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".BridgeService"
+            android:exported="false" />
+
+        <!-- INPUT PATH 1.
+             Highest possible intent-filter priority so that if the head unit
+             (or the framework fallback) delivers the media button as an
+             ordered broadcast, we see it before Poweramp's own
+             PSMediaButtonReceiver, which sits at priority 999. -->
+        <receiver
+            android:name=".MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Startup signals. Observed on the car (26 Sep 2026): MEDIA_MOUNTED ~40 s
+             after boot, BOOT_COMPLETED 8 s later, then USER_PRESENT. The QUICKBOOT /
+             QB_POWERON ones are other vendors' conventions, kept because they are free:
+             an action the unit never sends simply never fires.
+             v0.8 adds TIME_SET / TIMEZONE_CHANGED: the unit has no battery-backed clock
+             and sets the time from Wi-Fi/GPS ~10 s after boot, the earliest signal of
+             all. (CONNECTIVITY_CHANGE would be earlier still, but apps targeting API 24
+             can no longer receive it from the manifest.) -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="autochips.intent.action.QB_POWERON" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+            <!-- The SD card mounting is another reliable "the unit is up" moment. -->
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <data android:scheme="file" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Repeating alarm that restarts the service if it has gone away, and whose
+             absence from the log is itself evidence the app was force-stopped. -->
+        <receiver
+            android:name=".WatchdogReceiver"
+            android:exported="false" />
+
+    </application>
+</manifest>

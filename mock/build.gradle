@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+// ---------------------------------------------------------------------------
+// MOCK POWERAMP - emulator test harness only.
+//
+// The real Poweramp APK ships arm64-v8a / armeabi-v7a native libs only, so it
+// cannot be installed on an x86_64 emulator. This module impersonates it: same
+// package name, same exported component names, same intent filters. It receives
+// what SWC Bridge sends and prints it, so the whole dispatch chain can be
+// verified at a desk.
+//
+// NEVER install this on the head unit. It shares Poweramp's package name; the
+// install would be refused on signature mismatch anyway, but don't try.
+// ---------------------------------------------------------------------------
+
+android {
+    namespace 'com.maxmpz.audioplayer'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.maxmpz.audioplayer"
+        minSdk 21
+        //noinspection ExpiredTargetSdkVersion,OldTargetApi
+        targetSdk 24
+        // Mimics real build 1025: SwcBridge computes build = versionCode / 1000.
+        versionCode 1025009
+        versionName "mock-build-1025"
+    }
+
+    buildTypes {
+        debug { minifyEnabled false }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    lint { abortOnError false }
+}
+
+dependencies {
+}
