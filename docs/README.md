@@ -5,6 +5,9 @@ The story of how SWC Bridge was made to start itself after a cold boot, with eve
 | Doc | What it is |
 |---|---|
 | [SwcBridge-ColdBoot-Findings.md](SwcBridge-ColdBoot-Findings.md) | **Start here.** Final status (Oct 2026), how the fix works, known limitations, and the full investigation record. |
+| [TESTING.md](TESTING.md) | Testing at the desk with the mock Poweramp, and the verified desk and car results (5 Sep 2026). |
+| [volume-story.md](volume-story.md) | Why Android's volume wouldn't go past 10/15 (the safe-volume limiter), and the fix (v0.4 – v0.6). |
+| [../CHANGELOG.md](../CHANGELOG.md) | What changed in each version, v0.1 to v0.9.2. |
 | [infographics/how-swc-bridge-starts-itself.png](infographics/how-swc-bridge-starts-itself.png) | One-page overview: the head unit's switch-off rule, before vs. after, a wheel press, a drive timeline. |
 | [infographics/lean-mode-explained.png](infographics/lean-mode-explained.png) | Deep dive into lean mode, with file and line references into the v0.9.2 source. |
 | [SwcBridge-ColdBoot-Handoff.md](SwcBridge-ColdBoot-Handoff.md) | The 20 Sep 2026 handoff that started the cold-boot investigation. |
