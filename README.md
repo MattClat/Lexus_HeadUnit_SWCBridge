@@ -521,3 +521,14 @@ app/src/main/java/com/mattc/swcbridge/
 - Input path 2 registers an active `MediaSession` claiming `STATE_PLAYING`. That's how it
   wins media button priority, but it may show up in the notification shade. Turn it off
   once you know path 1 works.
+
+
+
+  ## License
+
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**. 
+
+* **Allowed:** You are free to download, use, and modify this app for **personal, educational, or non-commercial purposes**.
+* **Not Allowed:** You may **not** sell this app, offer it as a paid service, or use it for any commercial or for-profit purpose.
+
+See the [LICENSE](./LICENSE) file for the full legal terms.
